@@ -7,7 +7,7 @@ services:
       POSTGRES_PASSWORD: musicma
       POSTGRES_DB: musicma
     ports:
-      - "${DB_PORT:-5432}:5432"
+      - "127.0.0.1:${DB_PORT:-5432}:5432"
     volumes:
       - pgdata:/var/lib/postgresql/data
     healthcheck:
@@ -29,7 +29,7 @@ services:
       STREAM_SERVICE_URL: http://telegram-stream:8090
       DATA_DIR: /data
     ports:
-      - "${WEB_PORT:-3000}:3000"
+      - "127.0.0.1:${WEB_PORT:-3000}:3000"
     volumes:
       - mediadata:/data
     depends_on:
@@ -50,7 +50,7 @@ services:
       DATA_DIR: /data
       MAX_CONCURRENT_STREAMS: 4
     ports:
-      - "${STREAM_PORT:-8090}:8090"
+      - "127.0.0.1:${STREAM_PORT:-8090}:8090"
     volumes:
       - mediadata:/data
       - tg_session:/app/session
