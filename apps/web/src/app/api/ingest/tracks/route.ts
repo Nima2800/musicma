@@ -61,7 +61,7 @@ export async function POST(req: NextRequest) {
     );
   }
 
-  const minDuration = Number(process.env.MIN_DURATION_SECONDS || 60);
+  const minDuration = Number(process.env.MIN_DURATION_SECONDS || 70);
   let upserted = 0;
 
   for (const item of parsed.data.tracks) {

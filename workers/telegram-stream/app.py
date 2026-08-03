@@ -42,7 +42,7 @@ INGEST_SECRET = os.getenv("INGEST_SECRET", "dev-ingest-secret-change-me")
 WEB_URL = os.getenv("WEB_URL", "http://localhost:3000").rstrip("/")
 MAX_CONCURRENT_STREAMS = int(os.getenv("MAX_CONCURRENT_STREAMS", "4"))
 INDEX_LIMIT = int(os.getenv("INDEX_LIMIT", "80"))
-MIN_DURATION_SECONDS = int(os.getenv("MIN_DURATION_SECONDS", "60"))
+MIN_DURATION_SECONDS = int(os.getenv("MIN_DURATION_SECONDS", "70"))
 CACHE_MAX_FILES = int(os.getenv("CACHE_MAX_FILES", "12"))
 
 for d in (DATA_DIR, CACHE_DIR, COVERS_DIR, AVATARS_DIR, CREDS_PATH.parent):
