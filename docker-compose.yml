@@ -1,0 +1,63 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: musicma
+      POSTGRES_PASSWORD: musicma
+      POSTGRES_DB: musicma
+    ports:
+      - "${DB_PORT:-5432}:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U musicma -d musicma"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  web:
+    build:
+      context: ./apps/web
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    environment:
+      DATABASE_URL: postgresql://musicma:musicma@postgres:5432/musicma?schema=public
+      INGEST_SECRET: ${INGEST_SECRET:-dev-ingest-secret-change-me}
+      ADMIN_PASSWORD: ${ADMIN_PASSWORD:-admin123}
+      ADMIN_JWT_SECRET: ${ADMIN_JWT_SECRET:-dev-jwt-secret-change-me}
+      STREAM_SERVICE_URL: http://telegram-stream:8090
+      DATA_DIR: /data
+    ports:
+      - "${WEB_PORT:-3000}:3000"
+    volumes:
+      - mediadata:/data
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  telegram-stream:
+    build:
+      context: ./workers/telegram-stream
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    environment:
+      TELEGRAM_API_ID: ${TELEGRAM_API_ID:-}
+      TELEGRAM_API_HASH: ${TELEGRAM_API_HASH:-}
+      TELEGRAM_SESSION: ${TELEGRAM_SESSION:-musicma}
+      INGEST_SECRET: ${INGEST_SECRET:-dev-ingest-secret-change-me}
+      WEB_URL: http://web:3000
+      DATA_DIR: /data
+      MAX_CONCURRENT_STREAMS: 4
+    ports:
+      - "${STREAM_PORT:-8090}:8090"
+    volumes:
+      - mediadata:/data
+      - tg_session:/app/session
+    depends_on:
+      - web
+
+volumes:
+  pgdata:
+  mediadata:
+  tg_session:

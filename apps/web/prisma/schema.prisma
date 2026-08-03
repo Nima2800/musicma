@@ -1,0 +1,100 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model AppSetting {
+  key       String   @id
+  value     String
+  updatedAt DateTime @updatedAt
+}
+
+model Channel {
+  id            String      @id @default(cuid())
+  title         String
+  username      String?
+  telegramId    String      @unique
+  slug          String      @unique
+  coverUrl      String?
+  isActive      Boolean     @default(true)
+  isValidated   Boolean     @default(false)
+  autoSync      Boolean     @default(true)
+  lastIndexedAt DateTime?
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+  tracks        Track[]
+  syncCursor    SyncCursor?
+}
+
+model Track {
+  id                   String      @id @default(cuid())
+  title                String
+  artist               String?
+  album                String?
+  duration             Int?
+  mimeType             String?
+  fileSize             BigInt?
+  coverPath            String?
+  caption              String?
+  genre                String?
+  mood                 String?
+  year                 Int?
+  language             String?
+  isRemix              Boolean     @default(false)
+  isInstrumental       Boolean     @default(false)
+  bitrate              Int?
+  quality              String?
+  waveformPeaks        Json?
+  fingerprint          String?
+  telegramPostUrl      String?
+  publishedAt          DateTime?
+  isPublished          Boolean     @default(true)
+  isFeatured           Boolean     @default(false)
+  likeCount            Int         @default(0)
+  saveCount            Int         @default(0)
+  reportCount          Int         @default(0)
+  channelId            String
+  channel              Channel     @relation(fields: [channelId], references: [id], onDelete: Cascade)
+  telegramMessageId    BigInt
+  telegramFileId       BigInt?
+  telegramFileUniqueId String      @unique
+  telegramAccessHash   String?
+  slug                 String
+  playCount            Int         @default(0)
+  isAvailable          Boolean     @default(true)
+  createdAt            DateTime    @default(now())
+  updatedAt            DateTime    @updatedAt
+  playEvents           PlayEvent[]
+
+  @@unique([channelId, telegramMessageId])
+  @@index([channelId, createdAt])
+  @@index([title])
+  @@index([artist])
+  @@index([playCount])
+  @@index([publishedAt])
+  @@index([mood])
+  @@index([genre])
+  @@index([isFeatured])
+  @@index([isPublished, isAvailable])
+}
+
+model PlayEvent {
+  id        String   @id @default(cuid())
+  trackId   String
+  track     Track    @relation(fields: [trackId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+
+  @@index([createdAt])
+  @@index([trackId, createdAt])
+}
+
+model SyncCursor {
+  id            String   @id @default(cuid())
+  channelId     String   @unique
+  channel       Channel  @relation(fields: [channelId], references: [id], onDelete: Cascade)
+  lastMessageId BigInt   @default(0)
+  updatedAt     DateTime @updatedAt
+}

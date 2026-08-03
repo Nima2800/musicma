@@ -1,0 +1,15 @@
+node_modules
+.next
+.env
+.env.local
+data
+*.session
+*.session-journal
+.venv
+__pycache__
+.DS_Store
+apps/web/data
+workers/telegram-stream/data
+workers/telegram-stream/*.session
+dist
+*.log
