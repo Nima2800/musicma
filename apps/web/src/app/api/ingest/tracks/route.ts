@@ -61,9 +61,13 @@ export async function POST(req: NextRequest) {
     );
   }
 
+  const minDuration = Number(process.env.MIN_DURATION_SECONDS || 60);
   let upserted = 0;
 
   for (const item of parsed.data.tracks) {
+    // Ignore short clips (voice notes, previews) — keep only real tracks
+    if (item.duration != null && item.duration < minDuration) continue;
+
     const channel = await prisma.channel.findUnique({
       where: { telegramId: item.channelTelegramId },
     });
